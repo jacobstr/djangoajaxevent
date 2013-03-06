@@ -10,7 +10,7 @@ Django Ajax Event
 Goal
 ====
 
-	* To make it easier to make ajax **requests**, have Django **respond** with corresponding output, and **react** to this new data in your Javascript code.
+	* To make it easier to generate ajax **requests**, have Django **respond** with corresponding output, and **react** to this new data in your Javascript code.
 
 ==============
 How it Works
@@ -20,11 +20,11 @@ How it Works
 
 	jQuery is used for all the javascript code and `namespaced events <http://docs.jquery.com/Namespaced_Events>`_ are utilized.
 
-Django Ajax Event simplifies this process by formatting standard `AjaxResponses` (basically a wrapper around HttpResponse than guarantees JSON and formatting). On the client side, a piece of javascript code monitors incoming data for these
+Django Ajax Event simplifies this process by formatting standard `AjaxResponses` (basically a wrapper around HttpResponse that guarantees JSON and formatting). On the client side, a piece of javascript code monitors incoming data for these
 specially formatted responses and makes sure to trigger the appropriate events.
 
 Events facilitate a decentralized approach: whether it's an update to comments, or a shopping cart, or message - an event will be triggered and you can update the bits and pieces of your interface that need to worry about this new information rather than
-writing a monolithic function that updates your shopping cart total, updates your shopping cart summary, flags products as 'being in your wishlist' all at the same time - each of these can be it's own widget, with it's own listener that listens for a `ItemAddedToCart` event.
+writing a large function that updates your shopping cart total, updates your shopping cart summary, flags products as 'being in your wishlist' all at the same time - each of these can be it's own widget, with it's own listener that listens for a `ItemAddedToCart` event.
 
 See :ref:`json-sample`.
 
@@ -84,9 +84,7 @@ Example Javascript Code
 		jQuery('#cart').find('#product_id-'+product_id).find('.qty').val(ajaxEvent.payload.newQty);
 	});
 
-	// Because it's an event, should you add another widget to your page that also needs to reflect cart updates,
-	// you can just create another event binding that listens for the same event as in the previous example,
-	// but does it's own thang with the data.
+  // You can bind multiple events to teh same response.
 	jQuery(document).bind('CartUpdate.django',function(ajaxEvent){
 		// <div id="total_value">$<span class="value"></span></div>
 		// ajaxEvent.payload.value is an integer
