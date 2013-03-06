@@ -1,0 +1,275 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Django Ajax Event &mdash; Django Ajax Event v0.1 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Django Ajax Event v0.1 documentation" href="#" />
+    <link rel="next" title="Conventions &amp; Tips" href="conventions.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="conventions.html" title="Conventions &amp; Tips"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">Django Ajax Event v0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="django-ajax-event">
+<h1>Django Ajax Event<a class="headerlink" href="#django-ajax-event" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="goal">
+<h2>Goal<a class="headerlink" href="#goal" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<ul class="simple">
+<li>To make it easier to make ajax <strong>requests</strong>, have Django <strong>respond</strong> with corresponding output, and <strong>react</strong> to this new data in your Javascript code.</li>
+</ul>
+</blockquote>
+</div>
+<div class="section" id="how-it-works">
+<h2>How it Works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">jQuery is used for all the javascript code and <a class="reference external" href="http://docs.jquery.com/Namespaced_Events">namespaced events</a> are utilized.</p>
+</div>
+<p>Django Ajax Event simplifies this process by formatting standard <cite>AjaxResponses</cite> (basically a wrapper around HttpResponse than guarantees JSON and formatting). On the client side, a piece of javascript code monitors incoming data for these
+specially formatted responses and makes sure to trigger the appropriate events.</p>
+<p>Events facilitate a decentralized approach: whether it&#8217;s an update to comments, or a shopping cart, or message - an event will be triggered and you can update the bits and pieces of your interface that need to worry about this new information rather than
+writing a monolithic function that updates your shopping cart total, updates your shopping cart summary, flags products as &#8216;being in your wishlist&#8217; all at the same time - each of these can be it&#8217;s own widget, with it&#8217;s own listener that listens for a <cite>ItemAddedToCart</cite> event.</p>
+<p>See <a class="reference internal" href="#json-sample"><em>Sample JSON</em></a>.</p>
+<p>See <a class="reference internal" href="#module-reference"><em>Module Reference</em></a>.</p>
+<div class="section" id="structure">
+<h3>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h3>
+<p>An <tt class="docutils literal"><span class="pre">AjaxResponse</span></tt> consists of nested <tt class="docutils literal"><span class="pre">AjaxContent</span></tt> which has a <tt class="docutils literal"><span class="pre">type</span></tt> and a <tt class="docutils literal"><span class="pre">payload</span></tt>.</p>
+<p>In javascript, a global <tt class="docutils literal"><span class="pre">DjangoListener</span></tt> instance triggers events based on the <tt class="docutils literal"><span class="pre">type</span></tt> and passes along the <tt class="docutils literal"><span class="pre">payload</span></tt> to any interested listeners. The goal being that you can create a set of decentralized widgets that respond to this data whether it&#8217;s a notification,
+an update to a user&#8217;s shopping cart, or a form validation response.</p>
+</div>
+<div class="section" id="sample-json">
+<span id="json-sample"></span><h3>Sample JSON<a class="headerlink" href="#sample-json" title="Permalink to this headline">¶</a></h3>
+<p>The JSON generated by Django looks like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span> <span class="o">:</span> <span class="s2">&quot;Response&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;djangoPayload&quot;</span> <span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="s2">&quot;payload&quot;</span> <span class="o">:</span> <span class="p">[{</span>
+                <span class="s2">&quot;type&quot;</span> <span class="o">:</span> <span class="s2">&quot;Message&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;djangoPayload&quot;</span> <span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+                <span class="s2">&quot;payload&quot;</span> <span class="o">:</span> <span class="s2">&quot;I can be a string, an array, an object. I can be an array of nested payloads too!&quot;</span>
+        <span class="p">},</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span> <span class="o">:</span> <span class="s2">&quot;CartUpdate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;djangoPayload&quot;</span> <span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+                <span class="s2">&quot;payload&quot;</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">newQty</span><span class="o">:</span> <span class="mi">5</span><span class="p">,</span> <span class="nx">product_id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">price</span><span class="o">:</span> <span class="mi">250</span> <span class="p">}</span>
+        <span class="p">}]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This would result in two events: <strong>Message.django</strong> and <strong>CartUpdate.django</strong>.</p>
+</div>
+<div class="section" id="example-javascript-code">
+<h4>Example Javascript Code<a class="headerlink" href="#example-javascript-code" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="c1">// Append a message to a notification area.</span>
+<span class="nx">jQuery</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;Message.django&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">ajaxEvent</span><span class="p">){</span>
+        <span class="c1">// &lt;div id=&quot;notification_area&quot;&gt;&lt;/div&gt;</span>
+        <span class="c1">// ajaxEvent.payload is an html string.</span>
+        <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#notification_area&#39;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">ajaxEvent</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Update a shopping cart cart.</span>
+<span class="nx">jQuery</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;CartUpdate.django&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">ajaxEvent</span><span class="p">){</span>
+        <span class="c1">// &lt;ul id=&quot;cart&quot;&gt;&lt;li id=&quot;product_id-1&quot;&gt;Cool Product&lt;span class=&quot;qty&quot;&gt;&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</span>
+        <span class="c1">// ajaxEvent.payload.newQty is an integer</span>
+        <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#cart&#39;</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;#product_id-&#39;</span><span class="o">+</span><span class="nx">product_id</span><span class="p">).</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;.qty&#39;</span><span class="p">).</span><span class="nx">val</span><span class="p">(</span><span class="nx">ajaxEvent</span><span class="p">.</span><span class="nx">payload</span><span class="p">.</span><span class="nx">newQty</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Because it&#39;s an event, should you add another widget to your page that also needs to reflect cart updates,</span>
+<span class="c1">// you can just create another event binding that listens for the same event as in the previous example,</span>
+<span class="c1">// but does it&#39;s own thang with the data.</span>
+<span class="nx">jQuery</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;CartUpdate.django&#39;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">ajaxEvent</span><span class="p">){</span>
+        <span class="c1">// &lt;div id=&quot;total_value&quot;&gt;$&lt;span class=&quot;value&quot;&gt;&lt;/span&gt;&lt;/div&gt;</span>
+        <span class="c1">// ajaxEvent.payload.value is an integer</span>
+        <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#total_value .value&#39;</span><span class="p">).</span><span class="nx">text</span><span class="p">());</span>
+        <span class="nx">jQuery</span><span class="p">(</span><span class="s1">&#39;#total_value .value&#39;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="module-ajax_event.utils">
+<span id="id1"></span><span id="module-reference"></span><h2>Module Reference<a class="headerlink" href="#module-ajax_event.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ajax_event.utils.AjaxEvent">
+<em class="property">class </em><tt class="descclassname">ajax_event.utils.</tt><tt class="descname">AjaxEvent</tt><big>(</big><em>type</em>, <em>payload</em>, <em>namespace=None</em><big>)</big><a class="reference internal" href="_modules/ajax_event/utils.html#AjaxEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ajax_event.utils.AjaxEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a single event. Pass this off to an AjaxResponse in order to have the payload make it&#8217;s way to your client side.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ajax_event.utils.AjaxMessage">
+<em class="property">class </em><tt class="descclassname">ajax_event.utils.</tt><tt class="descname">AjaxMessage</tt><big>(</big><em>messages</em>, <em>tag_lib=None</em><big>)</big><a class="reference internal" href="_modules/ajax_event/utils.html#AjaxMessage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ajax_event.utils.AjaxMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>An AjaxEvent that&#8217;s customized for use with django.contrib.messages. It will trigger a <strong>Message</strong> event
+with associated <strong>MessageItems</strong> for each message django created.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ajax_event.utils.AjaxResponse">
+<em class="property">class </em><tt class="descclassname">ajax_event.utils.</tt><tt class="descname">AjaxResponse</tt><big>(</big><em>content</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/ajax_event/utils.html#AjaxResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ajax_event.utils.AjaxResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets content_type as application/json. Also establishes a level of indirection for future customizations.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ajax_event.utils.JSONResponse">
+<em class="property">class </em><tt class="descclassname">ajax_event.utils.</tt><tt class="descname">JSONResponse</tt><big>(</big><em>content</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/ajax_event/utils.html#JSONResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ajax_event.utils.JSONResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets content_type as application/json.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ajax_event.utils.build_response">
+<tt class="descclassname">ajax_event.utils.</tt><tt class="descname">build_response</tt><big>(</big><em>request</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/ajax_event/utils.html#build_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ajax_event.utils.build_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience wrapper to build a top-level <a class="reference internal" href="#ajax_event.utils.AjaxResponse" title="ajax_event.utils.AjaxResponse"><tt class="xref py py-class docutils literal"><span class="pre">AjaxResponse</span></tt></a>. Automatically adds message events. Other <a class="reference internal" href="#ajax_event.utils.AjaxEvent" title="ajax_event.utils.AjaxEvent"><tt class="xref py py-class docutils literal"><span class="pre">AjaxEvent</span></tt></a>
+may be provided as positional arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>request</strong> &#8211; A Django request object. Messages are automatically processed and corresponding messages created.</li>
+<li><strong>args</strong> &#8211; Additional AjaxEvents provided as positional arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="included-events">
+<h1>Included Events<a class="headerlink" href="#included-events" title="Permalink to this headline">¶</a></h1>
+<p>There is currently one custom <a class="reference internal" href="#ajax_event.utils.AjaxEvent" title="ajax_event.utils.AjaxEvent"><tt class="xref py py-class docutils literal"><span class="pre">AjaxEvent</span></tt></a> subclass provided with the app. It can serve as an example of how to implement your own.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Only top level <strong>AjaxEvents</strong> result in events being triggered. Nested payloads aren&#8217;t triggered automatically - it&#8217;s up to your to control them.</p>
+</div>
+<p><a class="reference internal" href="#ajax_event.utils.AjaxMessage" title="ajax_event.utils.AjaxMessage"><tt class="xref py py-class docutils literal"><span class="pre">AjaxMessage</span></tt></a></p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions &amp; Tips</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="conventions.html#javascript">Javascript</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Django Ajax Event</a><ul>
+<li><a class="reference internal" href="#goal">Goal</a></li>
+<li><a class="reference internal" href="#how-it-works">How it Works</a><ul>
+<li><a class="reference internal" href="#structure">Structure</a></li>
+<li><a class="reference internal" href="#sample-json">Sample JSON</a><ul>
+<li><a class="reference internal" href="#example-javascript-code">Example Javascript Code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-ajax_event.utils">Module Reference</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#included-events">Included Events</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="conventions.html"
+                        title="next chapter">Conventions &amp; Tips</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="conventions.html" title="Conventions &amp; Tips"
+             >next</a> |</li>
+        <li><a href="#">Django Ajax Event v0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jacob Straszynski.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>
