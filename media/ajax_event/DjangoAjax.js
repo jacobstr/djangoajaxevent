@@ -92,7 +92,9 @@ DjangoResponse.prototype.init = function(data){
 
 /**
  * Trigger events for this DjangoResponse. I.E. if the DjangoResponse has a type of 'Messages' then
- * you can listen for it via jQuery(document).bind('Messages.django') - Notice the namespacing of the event.
+ * you can listen for it via jQuery(document).bind('Messages.django').
+ * 
+ * Payloads may also specify custom namespaces 
  */
 DjangoResponse.prototype.trigger = function(element){
   var self = this;
@@ -102,15 +104,9 @@ DjangoResponse.prototype.trigger = function(element){
   }
 
   jQuery.each(this.data.payload,function(k, el){
-    var nsparts = [el.type, 'django'];
+    nsparts = [el.type, self.data.namespace];
     self.validate(el);
-    // Trigger once without custom namespace
     jQuery(element).trigger(nsparts.join('.'), el);
-    if(self.data.namespace) {
-      nsparts = [el.type, self.data.namespace];
-      // Trigger again with custom namspace
-      jQuery(element).trigger(nsparts.join('.'), el);
-    }
   });
 };
 
@@ -124,10 +120,10 @@ DjangoResponse.prototype.validate = function(data){
   }
 };
 
-// Global listener than handles machinery of inspecting incoming Ajax data
-// for DjangoMessages (which we generate on the Python side).
-// Helps route these responses to interested parties on the Javascript (client) side
-// by trigger global events. I.E. "Messages.django". 
+// Global listener that handles machinery of inspecting incoming Ajax data
+// for DjangoResponses (which we generate on the Python side).
+// It helps route these responses to interested parties on the Javascript (client) side
+// by triggering global events. I.E. "Messages.django". 
 var DjangoListener = window.DjangoAjax.DjangoListener = DjangoAjax.makeClass();
 
 DjangoListener.prototype.startListening = function(){
@@ -148,7 +144,6 @@ DjangoListener.prototype.startListening = function(){
     // If we've made it here we have a DjangoResponse.
     // Instantiate and trigger it.
     response = new DjangoResponse(data);
-    console.log('DjangoResponse obtained',response);
     response.trigger();
   });
 };
@@ -231,7 +226,7 @@ DjangoValidator.prototype.init = function($form, data, settings){
   this.listenerCount = 0;
 };
 
-// Because there might be multiple simulateous forms undergoing validation
+// Because there might be multiple simultaneous forms undergoing validation
 DjangoValidator.prototype.startListening = function(){
   var self = this
 
@@ -242,7 +237,7 @@ DjangoValidator.prototype.startListening = function(){
 
 DjangoValidator.prototype.clearErrors = function(){
   if(settings.type == 'uniform'){
-
+    // Not implemented.
   }
 };
 
