@@ -77,14 +77,14 @@ Example Javascript Code
 		jQuery('#notification_area').text(ajaxEvent.payload);
 	});
 
-	// Update a shopping cart cart.
+	// Update a shopping cart.
 	jQuery(document).bind('CartUpdate.django', function(ajaxEvent){
 		// <ul id="cart"><li id="product_id-1">Cool Product<span class="qty"></span></li></ul>
 		// ajaxEvent.payload.newQty is an integer
 		jQuery('#cart').find('#product_id-'+product_id).find('.qty').val(ajaxEvent.payload.newQty);
 	});
 
-  // You can bind multiple events to teh same response.
+ 	// You can bind multiple events to the same response.
 	jQuery(document).bind('CartUpdate.django',function(ajaxEvent){
 		// <div id="total_value">$<span class="value"></span></div>
 		// ajaxEvent.payload.value is an integer
